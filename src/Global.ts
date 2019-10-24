@@ -11,10 +11,10 @@ const VICTORY = [
     [2, 4, 6],
 ];
 const STATE = ['empty', 'hover', 'cross', 'circle'];
-const TURN = ['cross', 'circle', 'tie'];
+const SCREEN = ['circle', 'cross', 'tie'];
 //  global variables
 var ray = new Sup.Math.Ray(), // Initialize mouse ray
-    turn : number;
+    state : number = 0;
 
 //  Create a Game namespace
 namespace Game {
@@ -48,7 +48,7 @@ namespace Game {
     function end () {
         let screen = new Sup.Actor('Screen');
         new Sup.SpriteRenderer(screen, 'Sprites/Screens');
-        screen.SpriteRenderer.setAnimation(TURN[turn]);
+        screen.SpriteRenderer.setAnimation(SCREEN[state]);
         screen.addBehavior(ScreenBehavior);
         screen.setPosition(0, 0, -2);
         Sup.setTimeout(function () {
@@ -95,9 +95,34 @@ namespace Game {
         }
         if (Math.floor(Math.random() * 2))
             play([Math.floor(Math.random() * 9)]);
-        turn = 0;
+        state = 1;
     }
     export function victory () {
-
+        let crosses : number = 0;
+        let circles : number = 0;
+        let free : number = 0;
+        for (let line of VICTORY) {
+            for (let i of line) {
+                switch (SQUARE[i][1]) {
+                    case 2:
+                        crosses++;
+                        break;
+                    case 3:
+                        circles++;
+                        break;
+                    default:
+                        free++;
+                        break;
+                }
+            }
+            if (crosses === 3 || circles === 3)
+                end();
+            crosses = 0;
+            circles = 0;
+        }
+        if (!free) {
+            state = 2;
+            end();
+        }
     }
 }
