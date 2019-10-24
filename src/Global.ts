@@ -23,8 +23,8 @@ namespace Game {
         let crosses : number = 0;
         let circles : number = 0;
         let free;
-        for (let line in VICTORY) {
-            for (let i of line)
+        for (let line of VICTORY) {
+            for (let i of line) {
                 switch (SQUARE[i][1]) {
                     case 2:
                         crosses++;
@@ -33,13 +33,14 @@ namespace Game {
                         circles++;
                         break;
                     default:
-                        free = SQUARE[i];
+                        free = i;
+                        break;
                 }
-            if (circles === 2 && crosses === 0) {
-                return [1, free]; // Win the game
-            } else if (circles === 0 && crosses === 2) {
-                return [1, free]; // Block player win
             }
+            if (circles === 2 && crosses === 0)
+                return [1, free]; // Win the game
+            if (circles === 0 && crosses === 2)
+                return [1, free]; // Block player win
             crosses = 0;
             circles = 0;
         }
@@ -48,12 +49,13 @@ namespace Game {
     function end () {
         let screen = new Sup.Actor('Screen');
         new Sup.SpriteRenderer(screen, 'Sprites/Screens');
-        screen.SpriteRenderer.setAnimation(SCREEN[state]);
+        screen.spriteRenderer.setAnimation(SCREEN[state]);
         screen.addBehavior(ScreenBehavior);
         screen.setPosition(0, 0, -2);
-        Sup.setTimeout(function () {
+        Sup.setTimeout(600, function () {
             screen.setPosition(0, 0, 4);
         });
+        return true;
     }
     function play (array) {
         let free = [];
@@ -62,13 +64,14 @@ namespace Game {
             if (SQUARE[i][1] < 2)
                 free.push(SQUARE[i]);
         r = Math.floor(Math.random() * free.length);
-        SQUARE[r][0].SpriteRenderer.setAnimation(STATE[3]);
-        SQUARE[r][1] = 3;
+        free[r][0].spriteRenderer.setAnimation(STATE[3]);
+        free[r][1] = 3;
     }
 
     //  Exported Functions
     export function ai () {
         let result = check();
+        Sup.log(result);
         switch (result[0]) {
             case 0:
                 if (SQUARE[4][1] < 2) {
@@ -80,7 +83,7 @@ namespace Game {
                 }
                 break;
             default:
-                play(result[1]);
+                play([result[1]]);
                 break;
         }
     }
@@ -90,7 +93,7 @@ namespace Game {
     }
     export function start () {
         for (let square of SQUARE) {
-            square[0].SpriteRenderer.setAnimation(STATE[0]);
+            square[0].spriteRenderer.setAnimation(STATE[0]);
             square[1] = 0;
         }
         if (Math.floor(Math.random() * 2))
@@ -116,13 +119,14 @@ namespace Game {
                 }
             }
             if (crosses === 3 || circles === 3)
-                end();
+                return end();
             crosses = 0;
             circles = 0;
         }
         if (!free) {
             state = 2;
-            end();
+            return end();
         }
+        return false;
     }
 }

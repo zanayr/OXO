@@ -19,12 +19,10 @@ class PlayerBehavior extends Sup.Behavior {
     }
     cycle () {
         state = 1;
-        Game.victory();
-        if (state <= 1) {
+        if (!Game.victory()) {
             state = 0;
             Game.ai();
-            Game.victory();
-            if (!state)
+            if (!Game.victory())
                 state = 1;
         }
     }
@@ -40,7 +38,7 @@ class PlayerBehavior extends Sup.Behavior {
                 if (Sup.Input.wasMouseButtonJustPressed(0) && square[1] === 1) {
                     if (state) {
                         state = 0;
-                        square[1] = 1;
+                        square[1] = 2;
                         this.mouse(1, square[0]);
                         Sup.setTimeout(600, this.cycle);
                     }
